@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  example:
+    # Nombre del compu
+    container_name: hello world computer
+    # Donde entro cuando entre a mi pc
+    working_dir: /app
+    # La aplicación que voy a usar
+    image: hello-world:linux
+    # puertos la conexión de la computadora con la mia
+    ports:
+      #host:local
+      - "8080:3000"
+    # variables de configuración para la compu
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=practice
+    # Si se cae el conedor que? lo reinicia siempre
+    restart: "always"
+    # Es para construcciones de aplicaciones propias
+    build:
+      context: ./backend
+      dockerfile: name_file
+    # Revisar que mi computadora esta viva, comprobar desde otras computadoras
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+    # Verifica el healcheck de otro contenedor
+    depends_on:
+      database:
+        condition: service_healthy
+    # La red para conectarse con otras computadoras
+    networks:
+      - practice
+    # Donde almaceno mi información dado el caso que mi computadora deje funcionar
+    volumes:
+      # host:local
+      - "./database:/var/lib/postgresql/data"
+    # Medir los recursos de la pc
+    deploy:
+      resources:
+        limits:
+          memory: "300m"
+          cpus: "0.3"
+        reservations:
+          memory: "100m"
+          cpus: "0.2"
+
+# Crear una red
+networks:
+  # Mi primera red
+  miRed: {}
